@@ -10,9 +10,14 @@ def solve_linear_inequality(a: float, b: float, direction: str = ">") -> str:
     求解一元一次不等式 ax + b > 0（或 <, >=, <=）
     """
     if a == 0:
-        # 退化为常数不等式
-        result = eval(f"{b} {direction} 0")
-        if result:
+        # 退化为常数不等式，根据方向判断 b 与 0 的关系
+        checks = {
+            ">": b > 0,
+            "<": b < 0,
+            ">=": b >= 0,
+            "<=": b <= 0,
+        }
+        if checks[direction]:
             return "解集为全体实数"
         else:
             return "无解"
@@ -101,13 +106,13 @@ def solve_quadratic_inequality(a: float, b: float, c: float, direction: str = ">
     elif delta == 0:
         x0 = -b / (2 * a)
         print(f"Δ = 0，重根 x = {x0}")
-        if direction == ">":
+        if direction in (">",):
             return f"x ≠ {x0}"
-        elif direction == ">=":
+        elif direction in (">=",):
             return "解集为全体实数"
-        elif direction == "<":
+        elif direction in ("<",):
             return "无解"
-        else:
+        else:  # "<="
             return f"x = {x0}"
     else:
         x1 = (-b - math.sqrt(delta)) / (2 * a)
