@@ -35,7 +35,7 @@ jobs:
               lines.push(
                 `🎉 恭喜 @${prAuthor}，你的 Pull Request 已被合并！`,
                 '',
-                '感谢你为 **人工智能学习工作区** 做出的贡献！你的改进将帮助更多学习者。',
+                '感谢你为 **人工智能中文教程** 做出的贡献！你的改进将帮助更多学习者。',
                 '',
                 '你可以继续通过以下方式参与项目：',
                 `- 📋 查看 [未解决的 Issues](${repoUrl}/issues) 寻找更多贡献机会`,
@@ -46,7 +46,7 @@ jobs:
                 '',
                 `🎉 Congratulations @${prAuthor}, your Pull Request has been merged!`,
                 '',
-                'Thank you for your contribution to the **AI Tutorial**! Your improvements will help more learners.',
+                'Thank you for your contribution to the **Artificial Intelligence Tutorial CN**! Your improvements will help more learners.',
                 '',
                 'You can continue participating in the project by:',
                 `- 📋 Checking [open Issues](${repoUrl}/issues) for more contribution opportunities`,
