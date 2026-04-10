@@ -17,8 +17,6 @@ plt.rcParams['font.sans-serif'] = ['DejaVu Sans']
 plt.rcParams['axes.unicode_minus'] = False
 
 x = np.linspace(0, 4, 500)
-# Avoid division warnings at x=0 for roots
-x_pos = np.where(x > 0, x, np.nan)
 
 fig, ax = plt.subplots(figsize=(8, 6))
 
@@ -30,9 +28,9 @@ ax.plot(x, x ** 2, color='#2980B9', linewidth=2.5, label='$y = x^2$', zorder=3)
 ax.plot(x, x ** 3, color='#E74C3C', linewidth=2.5, label='$y = x^3$', zorder=3)
 
 # Root functions
-ax.plot(x_pos, np.sqrt(x_pos), color='#27AE60', linewidth=2.5,
+ax.plot(x, np.sqrt(x), color='#27AE60', linewidth=2.5,
         label='$y = \\sqrt{x}$', zorder=3)
-ax.plot(x_pos, np.cbrt(x_pos), color='#8E44AD', linewidth=2.5,
+ax.plot(x, np.cbrt(x), color='#8E44AD', linewidth=2.5,
         label='$y = \\sqrt[3]{x}$', zorder=3)
 
 # Mark intersection at (1, 1)

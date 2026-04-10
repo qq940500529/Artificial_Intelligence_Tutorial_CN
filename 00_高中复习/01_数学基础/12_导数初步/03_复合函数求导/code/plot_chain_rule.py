@@ -18,7 +18,6 @@ plt.rcParams['axes.unicode_minus'] = False
 
 x = np.linspace(-2, 2, 500)
 u = x ** 2                    # inner function
-y_outer = np.sin(np.linspace(0, 4, 500))  # outer over u-range
 y_comp = np.sin(x ** 2)       # composite
 dy_dx = np.cos(x ** 2) * 2 * x  # derivative
 
@@ -84,7 +83,7 @@ ax.set_title('Composite: $y = \\sin(x^2)$', fontsize=13, fontweight='bold', pad=
 ax.set_xlabel('$x$', fontsize=12)
 ax.set_ylabel('$y$', fontsize=12)
 ax.legend(fontsize=9.5, loc='lower left')
-ax.set_ylim(-2.5, 2.5)
+ax.set_ylim(-3, 3)
 ax.spines['top'].set_visible(False)
 ax.spines['right'].set_visible(False)
 ax.grid(alpha=0.3)

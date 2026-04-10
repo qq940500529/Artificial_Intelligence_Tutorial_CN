@@ -101,10 +101,6 @@ for sigma, color, label in zip(sigma_vals, colors, labels):
 
 # Mean line
 ax.axvline(mean, color='black', linewidth=1.5, linestyle='--', alpha=0.6)
-ax.text(mean + 0.5, ax.get_ylim()[1] * 0.1 if ax.get_ylim()[1] > 0
-        else 0.01, f'$\\mu={mean}$', fontsize=11, color='black')
-
-# Recalculate after plotting to get proper ylim
 ax.set_xlim(50, 110)
 y_max = (1 / (3 * np.sqrt(2 * np.pi)))
 ax.text(mean + 0.5, y_max * 0.85, f'$\\mu={mean}$', fontsize=11,

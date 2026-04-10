@@ -49,9 +49,6 @@ ax.text(px + 0.15, py + 0.25, '$P$', fontsize=12, color='red',
 ax.plot([-c, px], [0, py], 'r--', linewidth=1.5, alpha=0.7)
 ax.plot([c, px], [0, py], 'r--', linewidth=1.5, alpha=0.7)
 
-# Labels
-d1 = np.sqrt((px + c)**2 + py**2)
-d2 = np.sqrt((px - c)**2 + py**2)
 ax.text(-0.3, 1.8, f'$|PF_1|+|PF_2|=2a={2*a}$', fontsize=10,
         ha='center', bbox=dict(facecolor='lightyellow', alpha=0.8,
                                 edgecolor='gray', boxstyle='round'))
@@ -186,16 +183,11 @@ A = np.array([-2, 0])
 B = np.array([2, 0])
 k = 2  # |PA|/|PB| = k
 
-# Apollonius circle: center and radius
-# Center: ((-k^2*B[0] + A[0])/(1-k^2), 0) when on x-axis
-# For |PA|/|PB| = k, locus is circle with:
-# center = (A + k^2 * B) / (k^2 - 1) ... let me derive properly
-# |PA|^2 = k^2 |PB|^2
-# (x+2)^2 + y^2 = 4[(x-2)^2 + y^2]
-# x^2+4x+4+y^2 = 4x^2-16x+16+4y^2
-# 3x^2+3y^2-20x+12=0
-# x^2+y^2-(20/3)x+4=0
-# (x-10/3)^2 + y^2 = 100/9 - 4 = 64/9
+# Apollonius circle for |PA|/|PB| = k with A(-2,0), B(2,0), k=2
+# From |PA|^2 = k^2 |PB|^2:
+#   (x+2)^2 + y^2 = 4[(x-2)^2 + y^2]
+#   => 3x^2 + 3y^2 - 20x + 12 = 0
+#   => (x - 10/3)^2 + y^2 = 64/9
 center_x = 10 / 3
 radius = 8 / 3
 
@@ -225,9 +217,6 @@ ax.text(px_a + 0.15, py_a + 0.25, '$P$', fontsize=12, color='red',
 ax.plot([A[0], px_a], [A[1], py_a], 'r--', linewidth=1.5, alpha=0.7)
 ax.plot([B[0], px_a], [B[1], py_a], 'r--', linewidth=1.5, alpha=0.7)
 
-# Verify and show ratio
-dist_PA = np.sqrt((px_a - A[0])**2 + (py_a - A[1])**2)
-dist_PB = np.sqrt((px_a - B[0])**2 + (py_a - B[1])**2)
 ax.text(center_x, -3.0, f'$|PA|/|PB|=k={k}$', fontsize=10, ha='center',
         bbox=dict(facecolor='lightyellow', alpha=0.8, edgecolor='gray',
                   boxstyle='round'))

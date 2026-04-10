@@ -78,7 +78,7 @@ style_ax(ax)
 
 # ---------- 4. f(x)=ln(x), f'(x)=1/x ----------
 ax = axes[1, 1]
-x = np.linspace(0.05, 5, 300)
+x = np.linspace(0.2, 5, 300)
 y = np.log(x)
 dy = 1.0 / x
 ax.plot(x, y, 'b-', linewidth=2.2, label=r"$f(x)=\ln x$")
@@ -88,7 +88,7 @@ draw_tangent(ax, x0, np.log(x0), 1.0 / x0, length=2.0)
 ax.set_title(r"Log Rule: $(\ln x)' = 1/x$", fontsize=12, fontweight='bold')
 ax.set_xlabel('$x$', fontsize=10)
 ax.set_ylabel('$y$', fontsize=10)
-ax.set_ylim(-3, 5)
+ax.set_ylim(-2, 6)
 style_ax(ax)
 
 plt.tight_layout()

@@ -4,7 +4,6 @@
 
 import os
 import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
 
 # ---------- 输出路径 ----------
 script_dir = os.path.dirname(os.path.abspath(__file__))
