@@ -21,9 +21,32 @@ jobs:
           script: |
             const action = context.payload.action;
             const issue = context.payload.issue;
-            const issueAuthor = issue.user.login;
-            const actor = context.payload.sender.login;
             const repoUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
+
+            // --- Bot→人类 用户解析 | Bot-to-human user resolution ---
+            // 从 .github/bot-user-mapping.json 读取映射配置
+            // Fetch mapping config from .github/bot-user-mapping.json
+            let botMapping = {};
+            try {
+              const { data } = await github.rest.repos.getContent({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                path: '.github/bot-user-mapping.json'
+              });
+              botMapping = JSON.parse(Buffer.from(data.content, 'base64').toString());
+            } catch (e) {
+              // 配置文件不存在时回退到仓库所有者 | Fall back to repo owner if config not found
+            }
+            function resolveUser(login, type) {
+              if (type === 'Bot' || login.endsWith('[bot]')) {
+                return botMapping[login] || context.repo.owner;
+              }
+              return login;
+            }
+            // --- 解析结束 | End resolution ---
+
+            const issueAuthor = resolveUser(issue.user.login, issue.user.type);
+            const actor = resolveUser(context.payload.sender.login, context.payload.sender.type);
             const lines = [];
 
             // === Issue 被关闭 | Issue closed ===

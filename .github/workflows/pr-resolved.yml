@@ -25,10 +25,29 @@ jobs:
         with:
           script: |
             const pr = context.payload.pull_request;
-            const prAuthor = pr.user.login;
-            const actor = context.payload.sender.login;
             const merged = pr.merged;
             const repoUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
+
+            // --- Bot→人类 用户解析 | Bot-to-human user resolution ---
+            let botMapping = {};
+            try {
+              const { data } = await github.rest.repos.getContent({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                path: '.github/bot-user-mapping.json'
+              });
+              botMapping = JSON.parse(Buffer.from(data.content, 'base64').toString());
+            } catch (e) {}
+            function resolveUser(login, type) {
+              if (type === 'Bot' || login.endsWith('[bot]')) {
+                return botMapping[login] || context.repo.owner;
+              }
+              return login;
+            }
+            // --- 解析结束 | End resolution ---
+
+            const prAuthor = resolveUser(pr.user.login, pr.user.type);
+            const actor = resolveUser(context.payload.sender.login, context.payload.sender.type);
             const lines = [];
 
             if (merged) {
@@ -109,14 +128,36 @@ jobs:
           script: |
             const review = context.payload.review;
             const pr = context.payload.pull_request;
-            const prAuthor = pr.user.login;
-            const reviewer = review.user.login;
-            const state = review.state;
             const repoUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
+
+            // --- Bot→人类 用户解析 | Bot-to-human user resolution ---
+            let botMapping = {};
+            try {
+              const { data } = await github.rest.repos.getContent({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                path: '.github/bot-user-mapping.json'
+              });
+              botMapping = JSON.parse(Buffer.from(data.content, 'base64').toString());
+            } catch (e) {}
+            function resolveUser(login, type) {
+              if (type === 'Bot' || login.endsWith('[bot]')) {
+                return botMapping[login] || context.repo.owner;
+              }
+              return login;
+            }
+            // --- 解析结束 | End resolution ---
+
+            const rawPrAuthor = pr.user.login;
+            const rawReviewer = review.user.login;
+            const prAuthor = resolveUser(rawPrAuthor, pr.user.type);
+            const reviewer = resolveUser(rawReviewer, review.user.type);
+            const state = review.state;
             const lines = [];
 
-            // 不回复作者自己的审查
-            if (reviewer === prAuthor) return;
+            // 不回复作者自己的审查（使用原始用户名比较，避免 Bot 解析后误判）
+            // Skip self-reviews (compare raw logins to avoid false matches after bot resolution)
+            if (rawReviewer === rawPrAuthor) return;
 
             if (state === 'changes_requested') {
               // === 审查：请求修改 | Review: changes requested ===

@@ -20,11 +20,33 @@ jobs:
         with:
           script: |
             const issueTitle = context.payload.issue.title;
-            const issueAuthor = context.payload.issue.user.login;
             const isBugReport = issueTitle.startsWith('[错误]');
             const isFeatureRequest = issueTitle.startsWith('[建议]');
 
             const repoUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
+
+            // --- Bot→人类 用户解析 | Bot-to-human user resolution ---
+            let botMapping = {};
+            try {
+              const { data } = await github.rest.repos.getContent({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                path: '.github/bot-user-mapping.json'
+              });
+              botMapping = JSON.parse(Buffer.from(data.content, 'base64').toString());
+            } catch (e) {}
+            function resolveUser(login, type) {
+              if (type === 'Bot' || login.endsWith('[bot]')) {
+                return botMapping[login] || context.repo.owner;
+              }
+              return login;
+            }
+            // --- 解析结束 | End resolution ---
+
+            const issueAuthor = resolveUser(
+              context.payload.issue.user.login,
+              context.payload.issue.user.type
+            );
             const lines = [];
 
             if (isBugReport) {
