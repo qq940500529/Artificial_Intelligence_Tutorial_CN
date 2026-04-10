@@ -17,6 +17,7 @@ on:
 permissions:
   contents: read
   pull-requests: write
+  issues: write
 
 jobs:
   review:
@@ -236,7 +237,7 @@ jobs:
           # === Check 9: .gitkeep deletion check ===
           # AGENTS.MD 4.4: 不得删除尚未被课程内容替代的 .gitkeep 文件
           echo "::group::Check 9: .gitkeep deletion"
-          DELETED_GITKEEPS=$(git diff --name-only --diff-filter=D ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }} -- '*/.gitkeep' 2>/dev/null || true)
+          DELETED_GITKEEPS=$(git diff --name-only --diff-filter=D ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }} -- '**/.gitkeep' 2>/dev/null || true)
           if [ -n "$DELETED_GITKEEPS" ]; then
             while IFS= read -r gkfile; do
               [ -z "$gkfile" ] && continue
@@ -302,7 +303,7 @@ jobs:
           echo "Total errors: $ERROR_COUNT, warnings: $WARNING_COUNT"
 
       - name: Post review comment
-        if: steps.checks.outputs.error_count != '0' || steps.checks.outputs.warning_count != '0'
+        if: steps.changed.outputs.files != '' && (steps.checks.outputs.error_count != '0' || steps.checks.outputs.warning_count != '0')
         uses: actions/github-script@v7
         with:
           script: |

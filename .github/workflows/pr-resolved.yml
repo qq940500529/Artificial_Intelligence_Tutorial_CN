@@ -12,6 +12,7 @@ on:
 
 permissions:
   pull-requests: write
+  issues: write
 
 jobs:
   # === PR 合并或关闭 | PR merged or closed ===
