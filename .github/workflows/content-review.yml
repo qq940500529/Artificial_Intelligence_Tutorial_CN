@@ -32,7 +32,8 @@ jobs:
         run: |
           # 获取 PR 中变更的文件列表
           # Get the list of changed files in the PR
-          FILES=$(git diff --name-only --diff-filter=ACMR origin/${{ github.base_ref }}...HEAD -- \
+          # Use PR base/head SHAs to avoid relying on origin/<base_ref> which may not be fetched
+          FILES=$(git diff --name-only --diff-filter=ACMR ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }} -- \
             '00_高中复习/' '01_基础能力/' '02_核心原理/' '03_工程落地/' '04_持续研究/' \
             | grep '\.md$' || true)
           echo "files<<EOF" >> $GITHUB_OUTPUT
@@ -40,7 +41,7 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
           # 获取所有变更文件（包括非 md）
-          ALL_FILES=$(git diff --name-only --diff-filter=ACMR origin/${{ github.base_ref }}...HEAD || true)
+          ALL_FILES=$(git diff --name-only --diff-filter=ACMR ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }} || true)
           echo "all_files<<EOF" >> $GITHUB_OUTPUT
           echo "$ALL_FILES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -80,13 +81,13 @@ jobs:
           while IFS= read -r file; do
             [ -z "$file" ] && continue
             [ ! -f "$file" ] && continue
-            # 查找中文字符或中文标点直接紧跟 $ 的情况（没有空格）
-            # Find cases where Chinese chars/punctuation directly precede/follow $
-            results=$(grep -n '[，。、：；！？—""（）]\$[^$]' "$file" 2>/dev/null || true)
+            # 查找中文字符或中文标点与 $...$ 直接相邻的情况（没有空格）
+            # Find cases where Chinese chars/punctuation are directly adjacent to $...$
+            results=$(perl -ne 'print "$.:$_" if /(?:[一-龥，。、：；！？—""（）]\$[^$][^$]*\$|\$[^$][^$]*\$[一-龥，。、：；！？—""（）])/' "$file" 2>/dev/null || true)
             if [ -n "$results" ]; then
               while IFS= read -r line; do
                 linenum=$(echo "$line" | cut -d: -f1)
-                ISSUES="${ISSUES}\n- ❌ **公式空格缺失 | Missing Formula Spacing**: \`${file}:${linenum}\`\n  中文标点后紧跟行内公式 \`\$...\$\` 缺少空格\n  Missing space after Chinese punctuation before inline formula \`\$...\$\`\n"
+                ISSUES="${ISSUES}\n- ❌ **公式空格缺失 | Missing Formula Spacing**: \`${file}:${linenum}\`\n  行内公式 \`\$...\$\` 与相邻中文字符或中文标点之间缺少空格\n  Missing space between inline formula \`\$...\$\` and adjacent Chinese characters or punctuation\n"
                 ERROR_COUNT=$((ERROR_COUNT + 1))
               done <<< "$results"
             fi
@@ -116,11 +117,8 @@ jobs:
               fi
               # 检查前一行是独立行公式的结尾 $$，而当前行非空
               if echo "$prev_line" | grep -qE '\$\$$' && [ -n "$(echo "$line" | tr -d '[:space:]')" ] && ! echo "$line" | grep -qE '^\$\$'; then
-                if ! echo "$prev_line" | grep -qE '^\$\$.*\$\$$'; then
-                  # 多行公式结尾
-                  WARNINGS="${WARNINGS}\n- ⚠️ **公式后缺少空行 | Missing Blank Line After Formula**: \`${file}:$((linenum - 1))\`\n  独立行公式 \`\$\$...\$\$\` 后应有空行\n  Display formula \`\$\$...\$\$\` should have a blank line after it\n"
-                  WARNING_COUNT=$((WARNING_COUNT + 1))
-                fi
+                WARNINGS="${WARNINGS}\n- ⚠️ **公式后缺少空行 | Missing Blank Line After Formula**: \`${file}:$((linenum - 1))\`\n  独立行公式 \`\$\$...\$\$\` 后应有空行\n  Display formula \`\$\$...\$\$\` should have a blank line after it\n"
+                WARNING_COUNT=$((WARNING_COUNT + 1))
               fi
               prev_line="$line"
               if [ -z "$(echo "$line" | tr -d '[:space:]')" ]; then
@@ -238,7 +236,7 @@ jobs:
           # === Check 9: .gitkeep deletion check ===
           # AGENTS.MD 4.4: 不得删除尚未被课程内容替代的 .gitkeep 文件
           echo "::group::Check 9: .gitkeep deletion"
-          DELETED_GITKEEPS=$(git diff --name-only --diff-filter=D origin/${{ github.base_ref }}...HEAD -- '*/.gitkeep' 2>/dev/null || true)
+          DELETED_GITKEEPS=$(git diff --name-only --diff-filter=D ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }} -- '*/.gitkeep' 2>/dev/null || true)
           if [ -n "$DELETED_GITKEEPS" ]; then
             while IFS= read -r gkfile; do
               [ -z "$gkfile" ] && continue

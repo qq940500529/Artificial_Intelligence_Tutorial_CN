@@ -1,6 +1,6 @@
 # 自动回复 Issue | Auto-reply to Issues
-# 当新 Issue 被创建时，自动发送中英双语欢迎消息并添加标签
-# When a new Issue is created, automatically send a bilingual welcome message and add labels
+# 当新 Issue 被创建时，自动发送中英双语欢迎消息，并根据标题前缀添加标签
+# When a new Issue is created, automatically send a bilingual welcome message and add labels based on title prefix
 
 name: Issue Welcome Reply
 
@@ -99,3 +99,25 @@ jobs:
               issue_number: context.issue.number,
               body: lines.join('\n')
             });
+
+            // 根据标题前缀添加标签 | Add labels based on title prefix
+            try {
+              if (isBugReport) {
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number,
+                  labels: ['bug']
+                });
+              } else if (isFeatureRequest) {
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number,
+                  labels: ['enhancement']
+                });
+              }
+            } catch (e) {
+              // 标签不存在时静默忽略 | Silently ignore if label doesn't exist
+              core.warning(`Could not add label: ${e.message}`);
+            }
