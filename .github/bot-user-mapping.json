@@ -1,5 +1,5 @@
 {
-  "_comment": "Bot 账户到人类操作者的映射 | Mapping from bot accounts to their human operators. 当工作流中需要 @mention 某个用户时，如果该用户是 Bot，则会 @mention 对应的人类操作者。未在此列出的 Bot 将回退到仓库所有者。| When a workflow needs to @mention a user, if that user is a Bot, the corresponding human operator will be @mentioned instead. Bots not listed here will fall back to the repository owner.",
+  "_comment": "Bot→人类 静态映射（仅当动态解析失败时使用）| Static bot-to-human mapping (fallback only when dynamic resolution fails). 工作流会优先通过 Issue 事件、assignees 等上下文动态查找真实操作者。| Workflows will first try to dynamically find the real operator from issue events, assignees, etc.",
   "copilot[bot]": "qq940500529",
   "github-actions[bot]": "qq940500529"
 }

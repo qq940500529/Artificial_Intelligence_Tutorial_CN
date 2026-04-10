@@ -28,26 +28,48 @@ jobs:
             const merged = pr.merged;
             const repoUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
 
-            // --- Bot→人类 用户解析 | Bot-to-human user resolution ---
+            // --- Bot→人类 动态用户解析 | Dynamic bot-to-human user resolution ---
             let botMapping = {};
             try {
               const { data } = await github.rest.repos.getContent({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
+                owner: context.repo.owner, repo: context.repo.repo,
                 path: '.github/bot-user-mapping.json'
               });
               botMapping = JSON.parse(Buffer.from(data.content, 'base64').toString());
             } catch (e) {}
-            function resolveUser(login, type) {
-              if (type === 'Bot' || login.endsWith('[bot]')) {
-                return botMapping[login] || context.repo.owner;
+
+            async function resolveUser(login, type, resource) {
+              if (type !== 'Bot' && !login.endsWith('[bot]')) return login;
+              if (resource) {
+                try {
+                  const refs = [...(resource.body || '').matchAll(/#(\d+)/g)].map(m => +m[1]);
+                  for (const num of refs) {
+                    const { data: events } = await github.rest.issues.listEvents({
+                      owner: context.repo.owner, repo: context.repo.repo, issue_number: num
+                    });
+                    const evt = events.reverse().find(e =>
+                      e.event === 'assigned' && e.assignee?.login?.endsWith('[bot]')
+                    );
+                    if (evt?.actor && evt.actor.type !== 'Bot') return evt.actor.login;
+                    const { data: linked } = await github.rest.issues.get({
+                      owner: context.repo.owner, repo: context.repo.repo, issue_number: num
+                    });
+                    if (linked.user.type !== 'Bot') return linked.user.login;
+                  }
+                } catch (e) {}
+                const ha = (resource.assignees || []).find(a => a.type !== 'Bot' && !a.login.endsWith('[bot]'));
+                if (ha) return ha.login;
+                if (resource.requested_reviewers) {
+                  const hr = resource.requested_reviewers.find(r => r.type !== 'Bot' && !r.login.endsWith('[bot]'));
+                  if (hr) return hr.login;
+                }
               }
-              return login;
+              return botMapping[login] || context.repo.owner;
             }
             // --- 解析结束 | End resolution ---
 
-            const prAuthor = resolveUser(pr.user.login, pr.user.type);
-            const actor = resolveUser(context.payload.sender.login, context.payload.sender.type);
+            const prAuthor = await resolveUser(pr.user.login, pr.user.type, pr);
+            const actor = await resolveUser(context.payload.sender.login, context.payload.sender.type, pr);
             const lines = [];
 
             if (merged) {
@@ -130,28 +152,50 @@ jobs:
             const pr = context.payload.pull_request;
             const repoUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
 
-            // --- Bot→人类 用户解析 | Bot-to-human user resolution ---
+            // --- Bot→人类 动态用户解析 | Dynamic bot-to-human user resolution ---
             let botMapping = {};
             try {
               const { data } = await github.rest.repos.getContent({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
+                owner: context.repo.owner, repo: context.repo.repo,
                 path: '.github/bot-user-mapping.json'
               });
               botMapping = JSON.parse(Buffer.from(data.content, 'base64').toString());
             } catch (e) {}
-            function resolveUser(login, type) {
-              if (type === 'Bot' || login.endsWith('[bot]')) {
-                return botMapping[login] || context.repo.owner;
+
+            async function resolveUser(login, type, resource) {
+              if (type !== 'Bot' && !login.endsWith('[bot]')) return login;
+              if (resource) {
+                try {
+                  const refs = [...(resource.body || '').matchAll(/#(\d+)/g)].map(m => +m[1]);
+                  for (const num of refs) {
+                    const { data: events } = await github.rest.issues.listEvents({
+                      owner: context.repo.owner, repo: context.repo.repo, issue_number: num
+                    });
+                    const evt = events.reverse().find(e =>
+                      e.event === 'assigned' && e.assignee?.login?.endsWith('[bot]')
+                    );
+                    if (evt?.actor && evt.actor.type !== 'Bot') return evt.actor.login;
+                    const { data: linked } = await github.rest.issues.get({
+                      owner: context.repo.owner, repo: context.repo.repo, issue_number: num
+                    });
+                    if (linked.user.type !== 'Bot') return linked.user.login;
+                  }
+                } catch (e) {}
+                const ha = (resource.assignees || []).find(a => a.type !== 'Bot' && !a.login.endsWith('[bot]'));
+                if (ha) return ha.login;
+                if (resource.requested_reviewers) {
+                  const hr = resource.requested_reviewers.find(r => r.type !== 'Bot' && !r.login.endsWith('[bot]'));
+                  if (hr) return hr.login;
+                }
               }
-              return login;
+              return botMapping[login] || context.repo.owner;
             }
             // --- 解析结束 | End resolution ---
 
             const rawPrAuthor = pr.user.login;
             const rawReviewer = review.user.login;
-            const prAuthor = resolveUser(rawPrAuthor, pr.user.type);
-            const reviewer = resolveUser(rawReviewer, review.user.type);
+            const prAuthor = await resolveUser(rawPrAuthor, pr.user.type, pr);
+            const reviewer = await resolveUser(rawReviewer, review.user.type, pr);
             const state = review.state;
             const lines = [];
 
