@@ -45,7 +45,7 @@ jobs:
                     const { data: events } = await github.rest.issues.listEvents({
                       owner: context.repo.owner, repo: context.repo.repo, issue_number: num
                     });
-                    const evt = events.reverse().find(e =>
+                    const evt = events.findLast(e =>
                       e.event === 'assigned' && e.assignee?.login?.endsWith('[bot]')
                     );
                     if (evt?.actor && evt.actor.type !== 'Bot') return evt.actor.login;
