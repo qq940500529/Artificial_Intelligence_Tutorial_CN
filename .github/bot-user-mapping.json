@@ -1,0 +1,6 @@
+{
+  "_comment_zh": "Bot→人类 静态映射（仅当动态解析失败时使用）。工作流会优先通过 Issue 事件、assignees 等上下文动态查找真实操作者。",
+  "_comment_en": "Static bot-to-human mapping (fallback only when dynamic resolution fails). Workflows first try to dynamically find the real operator from issue events, assignees, etc.",
+  "copilot[bot]": "qq940500529",
+  "github-actions[bot]": "qq940500529"
+}
