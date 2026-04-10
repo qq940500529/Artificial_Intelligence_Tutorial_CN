@@ -4,7 +4,7 @@
 
 无论你是修正一个错别字、改进一段解释、编写一节完整的课程，还是提出一个改进建议，你的每一份贡献都非常重要。
 
-Thank you for your interest in the **Artificial Intelligence Tutorial (CN)** project! 🎉 Whether you're fixing a typo, improving an explanation, writing a full lesson, or suggesting an enhancement, every contribution matters.
+Thank you for your interest in the **Artificial Intelligence Tutorial (zh)** project! 🎉 Whether you're fixing a typo, improving an explanation, writing a full lesson, or suggesting an enhancement, every contribution matters.
 
 ---
 
@@ -58,8 +58,8 @@ Click the **Fork** button at the top-right corner to create a copy under your ac
 ### 2. 克隆到本地 | Clone Locally
 
 ```bash
-git clone https://github.com/<你的用户名>/Artificial_Intelligence_Tutorial_CN.git
-cd Artificial_Intelligence_Tutorial_CN
+git clone https://github.com/<你的用户名>/Artificial_Intelligence_Tutorial_zh.git
+cd Artificial_Intelligence_Tutorial_zh
 ```
 
 ### 3. 创建分支 | Create a Branch
