@@ -333,12 +333,12 @@ class WikiSyncer:
     def _add_nav(self, content: str, src_rel_path: Path) -> str:
         """Prepend a breadcrumb navigation bar to page content.
 
-        Home link uses an absolute path (/{repo_slug}/wiki/Home) to
-        ensure correct resolution regardless of the current page URL.
+        Home link uses a relative page-name link for cross-platform
+        compatibility (GitHub Wiki + Gitee Wiki).
         """
         parts = src_rel_path.parts
         crumbs = ' / '.join(parts[:-1])
-        home_link = f'[🏠 首页](/{self.repo_slug}/wiki/Home)'
+        home_link = '[🏠 首页](Home)'
         if crumbs:
             header = f'> {home_link} · {crumbs}\n\n---\n\n'
         else:
@@ -347,12 +347,17 @@ class WikiSyncer:
 
     def _wiki_link(self, text: str, wiki_name: str,
                    anchor: str = '') -> str:
-        """Generate an absolute wiki link to avoid relative URL issues.
+        """Generate a wiki page link using the page name as a relative URL.
 
-        GitHub Wiki's content renderer does NOT convert relative links
-        to absolute paths (unlike the sidebar renderer).  Using absolute
-        paths ensures links work regardless of the current page URL
-        (with or without trailing slash).
+        Using relative page-name links (e.g. ``[text](PageName)``)
+        instead of absolute paths (``/{repo}/wiki/PageName``) ensures
+        links work on **both** GitHub Wiki and Gitee Wiki, because:
+        - GitHub Wiki URL: ``/{owner}/{repo}/wiki/{page}``
+        - Gitee  Wiki URL: ``/{owner}/{repo}/wikis/{page}``
+        Absolute paths that hard-code ``/wiki/`` break on Gitee.
+
+        Both platforms resolve a bare page name relative to the wiki
+        root, so ``[text](PageName)`` works in either environment.
 
         Args:
             text: The visible link text.
@@ -360,7 +365,7 @@ class WikiSyncer:
             anchor: Optional fragment identifier (e.g. '#section').
         """
         return (
-            f'[{text}](/{self.repo_slug}/wiki/{wiki_name}{anchor})'
+            f'[{text}]({wiki_name}{anchor})'
         )
 
     # ---------------------------------------------------------------
@@ -368,12 +373,13 @@ class WikiSyncer:
     # ---------------------------------------------------------------
 
     def _transform_links(self, content: str, file_rel_path: Path) -> str:
-        """Transform all internal links to absolute wiki URLs.
+        """Transform all internal links to relative wiki page-name links.
 
         - Resolve relative paths against the source file location
         - Map resolved repo paths to wiki page names
         - Strip .md extensions (GitHub Wiki convention)
-        - Emit absolute /{repo_slug}/wiki/{page} links
+        - Emit relative page-name links (e.g. ``[text](PageName)``)
+          for cross-platform compatibility (GitHub + Gitee)
         - Rewrite image URLs to raw.githubusercontent.com/wiki/…
         """
         file_dir = file_rel_path.parent
@@ -387,7 +393,7 @@ class WikiSyncer:
             if re.match(r'^(https?://|#|mailto:|data:)', url):
                 return full
 
-            # Helper to build an absolute wiki link
+            # Helper to build a relative wiki page-name link
             def _mklink(txt, dest, anc=''):
                 return self._wiki_link(txt, dest, anc)
 
@@ -568,9 +574,8 @@ class WikiSyncer:
                     # add nav header
                     nav_content = '\n'.join(lines)
                     crumbs = rel_dir.replace('/', ' / ')
-                    home = f'/{self.repo_slug}/wiki/Home'
                     header = (
-                        f'> [🏠 首页]({home}) · {crumbs}'
+                        f'> [🏠 首页](Home) · {crumbs}'
                         f'\n\n---\n\n'
                     )
                     nav_content = header + nav_content
@@ -644,10 +649,7 @@ class WikiSyncer:
 
                 for topic_name, topic_data in mod_data.items():
                     if topic_data['readme']:
-                        topic_url = (
-                            f'/{self.repo_slug}/wiki/'
-                            f'{topic_data["readme"]}'
-                        )
+                        topic_url = topic_data['readme']
                         lines.append(
                             f'<details><summary>'
                             f'<strong>📂 <a href="'
@@ -705,7 +707,7 @@ class WikiSyncer:
         print('📑 Generating _Sidebar.md …')
 
         lines = [
-            f'**[🏠 首页](/{self.repo_slug}/wiki/Home)**',
+            '**[🏠 首页](Home)**',
             '',
             '---',
             '',
@@ -740,10 +742,7 @@ class WikiSyncer:
 
                     for topic_name, topic_data in mod_data.items():
                         if topic_data['readme']:
-                            topic_url = (
-                                f'/{self.repo_slug}/wiki/'
-                                f'{topic_data["readme"]}'
-                            )
+                            topic_url = topic_data['readme']
                             lines.append(
                                 f'&emsp;&emsp;'
                                 f'[{topic_name}]'
