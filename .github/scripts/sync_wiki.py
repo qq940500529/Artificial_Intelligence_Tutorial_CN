@@ -99,6 +99,11 @@ class WikiSyncer:
         # e.g. "00_高中复习/.../01_代数与方程/README.md"
         #      -> "01_代数与方程"
         self._path_to_wiki: dict = {}
+        # Maps repo-relative directory path -> wiki destination
+        # for stage/module/topic/point directories.
+        # Stage/module dirs → "Home#<anchor>" (section in Home.md)
+        # Topic/point dirs → flat wiki page name
+        self._dir_to_wiki: dict = {}
 
     # ---------------------------------------------------------------
     # public
@@ -146,11 +151,25 @@ class WikiSyncer:
             if not stage_path.is_dir():
                 continue
 
+            # Register stage directory → Home anchor
+            meta = STAGE_META.get(stage_dir)
+            if meta:
+                stage_anchor = _anchor(meta[0])
+                self._dir_to_wiki[stage_dir] = f'Home#{stage_anchor}'
+
             stage_data: OrderedDict = OrderedDict()
 
             for module_path in sorted(stage_path.iterdir()):
                 if not module_path.is_dir():
                     continue
+
+                # Register module directory → Home anchor
+                mod_heading = f'📚 {module_path.name}'
+                mod_anchor = _anchor(mod_heading)
+                mod_rel = str(
+                    module_path.relative_to(self.main)
+                )
+                self._dir_to_wiki[mod_rel] = f'Home#{mod_anchor}'
 
                 module_data: OrderedDict = OrderedDict()
 
@@ -166,6 +185,12 @@ class WikiSyncer:
                         'extra_md': [],       # (src_path, wiki_name)
                         'asset_dirs': [],     # (src_path, wiki_subdir)
                     }
+
+                    # Register topic directory → topic wiki page
+                    topic_rel = str(
+                        topic_path.relative_to(self.main)
+                    )
+                    self._dir_to_wiki[topic_rel] = topic_path.name
 
                     # --- topic README (level 3) ---
                     readme = topic_path / 'README.md'
@@ -191,6 +216,12 @@ class WikiSyncer:
                         topic_data['points'][wiki_name] = wiki_name
                         topic_data['points_src'][wiki_name] = rel
                         self.stats['points'] += 1
+
+                        # Register point directory → point wiki page
+                        pt_rel = str(
+                            point_path.relative_to(self.main)
+                        )
+                        self._dir_to_wiki[pt_rel] = wiki_name
 
                         # record resource sub-directories
                         for sub in sorted(point_path.iterdir()):
@@ -391,13 +422,22 @@ class WikiSyncer:
 
                 resolved = (self.main / file_dir / url).resolve()
                 try:
-                    resolved.relative_to(self.main)
+                    dir_rel = str(resolved.relative_to(self.main))
                 except ValueError:
                     # Path went above repo root; use fallback
                     for wn in self._path_to_wiki.values():
                         if wn == dir_name:
                             return f'[{text}]({wn})'
+                    # Check _dir_to_wiki by directory name
+                    for dk, dv in self._dir_to_wiki.items():
+                        if dk.endswith(dir_name):
+                            return f'[{text}]({dv})'
                     return f'[{text}]({dir_name})'
+
+                # Check _dir_to_wiki for stage/module/topic/point
+                wiki_dest = self._dir_to_wiki.get(dir_rel)
+                if wiki_dest:
+                    return f'[{text}]({wiki_dest})'
 
                 if resolved.is_dir():
                     # Check if this dir has a main course file
@@ -422,6 +462,11 @@ class WikiSyncer:
                 for wn in self._path_to_wiki.values():
                     if wn == dir_name:
                         return f'[{text}]({wn})'
+
+                # Check _dir_to_wiki by directory name (partial match)
+                for dk, dv in self._dir_to_wiki.items():
+                    if Path(dk).name == dir_name:
+                        return f'[{text}]({dv})'
 
                 # Final fallback: use the last path component as
                 # wiki page name.  When the target course is created
