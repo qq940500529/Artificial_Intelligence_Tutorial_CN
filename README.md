@@ -11,6 +11,8 @@
 
 [![GitHub仓库](https://img.shields.io/badge/GitHub-主仓库（推荐）-181717?style=flat-square&logo=github)](https://github.com/qq940500529/Artificial_Intelligence_Tutorial_zh)
 [![Gitee镜像](https://img.shields.io/badge/Gitee-镜像仓库（国内访问）-C71D23?style=flat-square&logo=gitee)](https://gitee.com/LIGKNO1/Artificial_Intelligence_Tutorial_zh)
+[![GitHub Wiki](https://img.shields.io/badge/GitHub-Wiki（推荐阅读）-0969da?style=flat-square&logo=github)](https://github.com/qq940500529/Artificial_Intelligence_Tutorial_zh/wiki)
+[![Gitee Wiki](https://img.shields.io/badge/Gitee-Wiki（国内阅读）-C71D23?style=flat-square&logo=gitee)](https://gitee.com/LIGKNO1/Artificial_Intelligence_Tutorial_zh/wikis)
 
 <br>
 
@@ -43,8 +45,12 @@
 > | :--- | :--- | :--- |
 > | 🐙 GitHub（主仓库） | [github.com/qq940500529/Artificial_Intelligence_Tutorial_zh](https://github.com/qq940500529/Artificial_Intelligence_Tutorial_zh) | 推荐使用；Markdown 格式、数学公式与 Mermaid 图表渲染最佳 |
 > | 🦊 Gitee（镜像仓库） | [gitee.com/LIGKNO1/Artificial_Intelligence_Tutorial_zh](https://gitee.com/LIGKNO1/Artificial_Intelligence_Tutorial_zh) | 供中国大陆地区访问；**仅用于查看**，不接受 Issues 或 Pull Requests |
+> | 📖 GitHub Wiki | [GitHub Wiki](https://github.com/qq940500529/Artificial_Intelligence_Tutorial_zh/wiki) | **推荐阅读方式**：侧边栏导航 + 扁平化页面，适合逐课学习 |
+> | 📖 Gitee Wiki | [Gitee Wiki](https://gitee.com/LIGKNO1/Artificial_Intelligence_Tutorial_zh/wikis) | 国内访问 Wiki；内容与 GitHub Wiki 自动同步 |
 >
-> 为获得最佳阅读体验，**请尽量通过 GitHub 查看课程内容**。若需提交问题反馈或参与贡献，请在 GitHub 仓库提交 Issues 或 Pull Requests。
+> 💡 **推荐通过 Wiki 阅读课程内容**——Wiki 提供侧边栏导航、面包屑定位和扁平化页面结构，相比直接浏览仓库目录，学习体验更加友好。
+>
+> 若需提交问题反馈或参与贡献，请在 [GitHub 主仓库](https://github.com/qq940500529/Artificial_Intelligence_Tutorial_zh) 提交 Issues 或 Pull Requests。
 
 ---
 
