@@ -720,10 +720,11 @@ window.addEventListener("DOMContentLoaded", () => {
             infoPanel.innerHTML = `
                 ${getInfoPanelCloseButton()}
                 <h2 class="info-title">人工智能知识图谱</h2>
-                <p class="info-subtitle">首页只保留四大核心模块与它们之间的直接关系。单击任意节点进入聚焦视图，聚焦对象居中，上游在上层水平平铺，下游在下层水平平铺。</p>
+                <p class="info-subtitle">首页展示四大核心阶段与它们之间的直接关系（00 高中复习阶段可通过搜索进入）。单击任意节点进入聚焦视图，聚焦对象居中，上游在上层水平平铺，下游在下层水平平铺。</p>
                 <div class="info-badges">
-                    <span class="info-badge">4 个核心模块</span>
+                    <span class="info-badge">${graphData.meta.stageCount} 大阶段</span>
                     <span class="info-badge">${graphData.meta.moduleCount} 个主题模块</span>
+                    <span class="info-badge">${graphData.meta.topicCount} 个知识主题</span>
                     <span class="info-badge">${graphData.meta.knowledgePointCount} 个知识点</span>
                     <span class="info-badge">搜索可直达任意节点</span>
                 </div>
