@@ -45,6 +45,9 @@ STAGE_META = {
     '04_持续研究': ('阶段 04：持续研究', '建立持续更新知识与专业判断的能力'),
 }
 
+# Emoji prefix used for module headings in Home.md and _Sidebar.md
+MODULE_EMOJI = '📚'
+
 # ---------------------------------------------------------------------------
 # 主入口 | Main
 # ---------------------------------------------------------------------------
@@ -164,7 +167,7 @@ class WikiSyncer:
                     continue
 
                 # Register module directory → Home anchor
-                mod_heading = f'📚 {module_path.name}'
+                mod_heading = f'{MODULE_EMOJI} {module_path.name}'
                 mod_anchor = _anchor(mod_heading)
                 mod_rel = str(
                     module_path.relative_to(self.main)
@@ -430,7 +433,7 @@ class WikiSyncer:
                             return f'[{text}]({wn})'
                     # Check _dir_to_wiki by directory name
                     for dk, dv in self._dir_to_wiki.items():
-                        if dk.endswith(dir_name):
+                        if Path(dk).name == dir_name:
                             return f'[{text}]({dv})'
                     return f'[{text}]({dir_name})'
 
@@ -609,7 +612,7 @@ class WikiSyncer:
                 continue
 
             for mod_name, mod_data in sdata.items():
-                lines.append(f'### 📚 {mod_name}')
+                lines.append(f'### {MODULE_EMOJI} {mod_name}')
                 lines.append('')
 
                 for topic_name, topic_data in mod_data.items():
@@ -699,7 +702,7 @@ class WikiSyncer:
                 for mod_name, mod_data in sdata.items():
                     lines.append('<details>')
                     lines.append(
-                        f'<summary>&emsp;📚 {mod_name}</summary>'
+                        f'<summary>&emsp;{MODULE_EMOJI} {mod_name}</summary>'
                     )
                     lines.append('')
 
