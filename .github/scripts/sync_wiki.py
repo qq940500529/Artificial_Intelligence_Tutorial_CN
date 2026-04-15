@@ -373,12 +373,13 @@ class WikiSyncer:
     # ---------------------------------------------------------------
 
     def _transform_links(self, content: str, file_rel_path: Path) -> str:
-        """Transform all internal links to absolute wiki URLs.
+        """Transform all internal links to relative wiki page-name links.
 
         - Resolve relative paths against the source file location
         - Map resolved repo paths to wiki page names
         - Strip .md extensions (GitHub Wiki convention)
-        - Emit absolute /{repo_slug}/wiki/{page} links
+        - Emit relative page-name links (e.g. ``[text](PageName)``)
+          for cross-platform compatibility (GitHub + Gitee)
         - Rewrite image URLs to raw.githubusercontent.com/wiki/…
         """
         file_dir = file_rel_path.parent
@@ -392,7 +393,7 @@ class WikiSyncer:
             if re.match(r'^(https?://|#|mailto:|data:)', url):
                 return full
 
-            # Helper to build an absolute wiki link
+            # Helper to build a relative wiki page-name link
             def _mklink(txt, dest, anc=''):
                 return self._wiki_link(txt, dest, anc)
 
