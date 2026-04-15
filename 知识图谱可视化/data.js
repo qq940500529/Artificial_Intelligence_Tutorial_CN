@@ -1602,9 +1602,9 @@
 		type: "knowledge-link"
 	},
 	{
-		source: "02-04",
+		source: "02-04-06",
 		target: "02-05-24",
-		label: "强化学习支撑机器人学习与决策",
+		label: "深度强化学习支撑机器人学习与决策",
 		type: "knowledge-link"
 	},
 	{

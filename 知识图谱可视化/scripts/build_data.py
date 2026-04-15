@@ -225,8 +225,8 @@ KNOWLEDGE_LINKS = [
     # 强化学习 → 大模型
     {"source": "02-04-04", "target": "02-05-07",
      "label": "策略梯度为 RLHF 对齐提供训练算法"},
-    {"source": "02-04", "target": "02-05-24",
-     "label": "强化学习支撑机器人学习与决策"},
+    {"source": "02-04-06", "target": "02-05-24",
+     "label": "深度强化学习支撑机器人学习与决策"},
 
     # 工程落地内部衔接
     {"source": "03-01-01", "target": "03-01-02",
@@ -292,7 +292,8 @@ def json_array(items, indent=1):
         for k, v in item.items():
             entries.append(f'{inner_tab}{k}: {json.dumps(v, ensure_ascii=False)}')
         parts.append("{\n" + ",\n".join(entries) + f"\n{tab}}}")
-    return "[\n" + f",\n".join(f"{tab}{p}" for p in parts) + f"\n{tab}]"  # noqa: E501
+    joined = f",\n".join(f"{tab}{p}" for p in parts)
+    return f"[\n{joined}\n{tab}]"
 
 
 def build_data_js():
