@@ -53,13 +53,33 @@ jobs:
           # GitHub Wiki 默认使用 master 分支；若已存在 Wiki 则保留其分支名
           # GitHub Wiki defaults to 'master'; if wiki already exists, its branch is preserved
           WIKI_URL="https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.wiki.git"
-          if git clone --quiet "$WIKI_URL" wiki-repo 2>/dev/null; then
+          CLONE_ERR_FILE="$(mktemp)"
+
+          if git clone --quiet "$WIKI_URL" wiki-repo 2>"$CLONE_ERR_FILE"; then
+            rm -f "$CLONE_ERR_FILE"
             echo "✅ Wiki repository cloned"
           else
-            echo "⚠️ Wiki not initialized — creating fresh repository"
-            mkdir -p wiki-repo
-            cd wiki-repo
-            git init -b master --quiet
+            CLONE_ERROR="$(cat "$CLONE_ERR_FILE")"
+            rm -f "$CLONE_ERR_FILE"
+
+            echo "git clone failed:"
+            echo "$CLONE_ERROR"
+
+            if printf '%s' "$CLONE_ERROR" | grep -Eqi 'repository .* not found|remote repository .* not found|does not exist'; then
+              echo "⚠️ Wiki repository does not exist yet — creating fresh repository"
+              mkdir -p wiki-repo
+              cd wiki-repo
+              git init -b master --quiet
+            else
+              echo "❌ Failed to clone Wiki repository for an unexpected reason. Aborting."
+              exit 1
+            fi
+          fi
+
+          # 验证 Wiki 仓库可访问 | Verify wiki repo is accessible for push
+          if ! git ls-remote "$WIKI_URL" HEAD &>/dev/null; then
+            echo "⚠️ Wiki remote is not yet accessible (wiki may need to be enabled in repo settings)."
+            echo "  The first push will create it if the token has permission."
           fi
 
       # ----------------------------------------------------------------

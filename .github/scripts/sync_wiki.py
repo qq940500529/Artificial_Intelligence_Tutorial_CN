@@ -48,6 +48,19 @@ STAGE_META = {
 
 
 def main():
+    required_vars = ['MAIN_REPO_PATH', 'WIKI_REPO_PATH', 'GITHUB_REPOSITORY']
+    missing = [v for v in required_vars if v not in os.environ]
+    if missing:
+        print(
+            f'❌ Missing required environment variable(s): {", ".join(missing)}\n'
+            f'Usage:\n'
+            f'  MAIN_REPO_PATH=/path/to/repo '
+            f'WIKI_REPO_PATH=/path/to/wiki '
+            f'GITHUB_REPOSITORY=owner/repo '
+            f'python {__file__}'
+        )
+        raise SystemExit(1)
+
     main_repo = Path(os.environ['MAIN_REPO_PATH']).resolve()
     wiki_repo = Path(os.environ['WIKI_REPO_PATH']).resolve()
     github_repo = os.environ['GITHUB_REPOSITORY']
